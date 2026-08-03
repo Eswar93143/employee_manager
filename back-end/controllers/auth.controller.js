@@ -8,21 +8,23 @@ const router = express.Router();
 // Login
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.query;
 
-        let employee = await employeeModel.findOne({ email });
+        const employee = await employeeModel.findOne({ email });
 
-        if (!employee)
+        if (!employee) {
             return res.status(400).json({
                 message: "Invalid credentials"
             });
+        }
 
         const isMatch = await bcrypt.compare(password, employee.password);
 
-        if (!isMatch)
+        if (!isMatch) {
             return res.status(400).json({
                 message: "Invalid credentials"
             });
+        }
 
         const token = jwt.sign(
             {
@@ -34,14 +36,14 @@ exports.login = async (req, res) => {
             }
         );
 
-        res.json({
+        return res.json({
             token
         });
     } catch (err) {
-        res.status(500).json({
+        return res.status(500).json({
             message: err.message
         });
     }
-}
+};
 
 // Forget password
