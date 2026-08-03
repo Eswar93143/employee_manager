@@ -10,3 +10,6 @@ build/
 
 # Logs
 *.log
+
+#API test
+api_test/

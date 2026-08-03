@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 @Service()
 export class AutheService {
     private api = 'https://api.example.com';
+    private apiUrl = environment.apiUrl;
 
     // constructor(private http: HttpClient) { }
     private http = inject(HttpClient);
