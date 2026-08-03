@@ -1,0 +1,47 @@
+<div class="login-container">
+  <h2>Login</h2>
+
+  <form #loginForm="ngForm" (ngSubmit)="login()">
+
+    <!-- Email -->
+    <div>
+      <label>Email</label>
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="loginData.email"
+        #email="ngModel"
+        required
+        email>
+
+      <div *ngIf="email.invalid && email.touched" style="color:red">
+        Please enter a valid email.
+      </div>
+    </div>
+
+    <br>
+
+    <!-- Password -->
+    <div>
+      <label>Password</label>
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="loginData.password"
+        #password="ngModel"
+        required
+        minlength="6">
+
+      <div *ngIf="password.invalid && password.touched" style="color:red">
+        Password must be at least 6 characters.
+      </div>
+    </div>
+
+    <br>
+
+    <button type="submit" [disabled]="loginForm.invalid">
+      Login
+    </button>
+
+  </form>
+</div>
