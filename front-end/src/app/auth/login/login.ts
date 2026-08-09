@@ -30,8 +30,9 @@ export class Login {
     this.authService.login(this.loginData.email, this.loginData.password)
       .subscribe({
         next: (response) => {
-          this.authService.saveToken(response.accessToken);
-          this.router.navigate(['/dashboard']);
+          console.log(response)
+          this.authService.saveToken(response.token);
+          this.router.navigate(['']);
         },
         error: (err) => {
           console.log(err);

@@ -5,15 +5,21 @@ import { environment } from '../../../environments/environment';
 @Service()
 export class AutheService {
     private api = 'https://api.example.com';
-    private apiUrl = environment.apiUrl;
+    private authApi = environment.authApi;
+
 
     // constructor(private http: HttpClient) { }
     private http = inject(HttpClient);
 
-    login(username: string, password: string) {
-        return this.http.post<any>(
-            `${this.api}/login`,
-            { username, password }
+    login(email: string, password: string) {
+        return this.http.get<any>(
+            `${this.authApi}/login`,
+            {
+                params: {
+                    email,
+                    password
+                }
+            }
         );
     }
 

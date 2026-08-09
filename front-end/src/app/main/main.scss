@@ -1,0 +1,77 @@
+.container {
+    height: 100vh;
+}
+
+.sidenav {
+    width: 260px;
+    border-right: 1px solid #e0e0e0;
+}
+
+.toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.content {
+    padding: 24px;
+}
+
+.spacer {
+    //   flex: 1 1 auto;
+    flex: 1;
+}
+
+.title {
+    margin-left: 16px;
+}
+
+.active {
+    //   background: #e8eaf6;
+    //   color: #3f51b5;
+    //   font-weight: 600;
+
+    background: rgba(63, 81, 181, .12);
+    color: #3f51b5;
+    border-radius: 8px;
+}
+
+mat-list-item {
+    border-radius: 8px;
+    margin: 4px 8px;
+}
+
+mat-icon {
+    margin-right: 16px;
+}
+
+.menu-title {
+    margin-left: 16px;
+}
+
+mat-expansion-panel {
+    box-shadow: none;
+    background: transparent;
+}
+
+mat-expansion-panel-header {
+    padding: 0 16px;
+}
+
+@media (max-width: 768px) {
+    .sidenav {
+        width: 240px;
+    }
+
+    .content {
+        padding: 16px;
+    }
+}
+
+.submenu {
+    margin-left: 20px;
+}
