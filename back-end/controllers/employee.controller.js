@@ -16,7 +16,7 @@ exports.addEmployee = async (req, res) => {
         );
 
         const employee = new employeeModel({
-            guid: uuidv4(),
+            employeeId: uuidv4(),
             ...employeeData,
             password: hashedPassword,
         });
@@ -69,7 +69,7 @@ exports.getEmployee = async (req, res) => {
     try {
         const employee = await employeeModel
             .findOne({
-                guid: req.params.guid,
+                employeeId: req.params.employeeId,
             })
             .select("-password");
 
@@ -109,7 +109,7 @@ exports.updateEmployee = async (req, res) => {
 
         const employee = await employeeModel.findOneAndUpdate(
             {
-                guid: req.params.guid,
+                employeeId: req.params.employeeId,
             },
             updateData,
             {
@@ -144,7 +144,7 @@ exports.updateEmployee = async (req, res) => {
 exports.deleteEmployee = async (req, res) => {
     try {
         const employee = await employeeModel.findOneAndDelete({
-            guid: req.params.guid,
+            employeeId: req.params.employeeId,
         });
 
         if (!employee) {

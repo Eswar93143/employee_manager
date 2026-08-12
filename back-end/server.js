@@ -18,10 +18,12 @@ app.use(express.json());
 const authRoutes = require("./routes/auth.routes");
 const employeeRoutes = require("./routes/employee.routes");
 const clientRoutes = require("./routes/client.routes");
+const projectRoutes = require("./routes/project.routes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/projects", projectRoutes);
 
 const PORT = process.env.PORT || 5000;
 
