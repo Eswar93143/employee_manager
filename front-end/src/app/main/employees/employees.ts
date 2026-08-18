@@ -1,17 +1,16 @@
-import { TableModule } from 'primeng/table';
-import { ViewEncapsulation } from '@angular/core';
-
-import { RouterOutlet } from '@angular/router';
 import {
+  AfterViewInit,
   Component,
   OnDestroy,
-  OnInit
+  OnInit,
+  ViewChild
 } from '@angular/core';
 
 import {
   ActivatedRoute,
   NavigationEnd,
-  Router
+  Router,
+  RouterOutlet
 } from '@angular/router';
 
 import {
@@ -23,35 +22,71 @@ import {
   takeUntil
 } from 'rxjs';
 
-import { MatTableDataSource } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { Employee } from './models/employee.interface';
+import { MasterData } from '../models/shared.interface';
+import { PageLayout } from '../layouts/page-layout/page-layout';
 import { EmployeeService } from './employee-services/Employee.service';
 import { SharedService } from '../services/shared.service';
-import {
-  AfterViewInit,
-  ViewChild
-} from '@angular/core';
 
-import { MatPaginator } from '@angular/material/paginator';
 
 interface EmployeeTableRow extends Employee {
   departmentName: string;
   roleName: string;
 }
+
+
 @Component({
   selector: 'app-employees',
-  imports: [TableModule, RouterOutlet],
-  templateUrl: './employees.html',
-  styleUrl: './employees.scss',
-  encapsulation: ViewEncapsulation.None
-})
-export class EmployeesComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(MatPaginator)
-paginator!: MatPaginator;
+  standalone: true,
 
+  imports: [
+    RouterOutlet,
+
+    // Page layout
+    PageLayout,
+
+    // Angular Material
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatTooltipModule
+  ],
+
+  templateUrl: './employees.html',
+  styleUrl: './employees.scss'
+})
+export class EmployeesComponent
+  implements OnInit, AfterViewInit, OnDestroy {
+
+  @ViewChild(MatPaginator)
+  paginator!: MatPaginator;
+
+
+  /**
+   * Current route view.
+   *
+   * list
+   * new
+   * edit
+   * view
+   */
   view = 'list';
 
+
+  /**
+   * Employee table columns.
+   */
   displayedColumns: string[] = [
     'name',
     'email',
@@ -62,38 +97,75 @@ paginator!: MatPaginator;
     'actions'
   ];
 
+
+  /**
+   * Material table data source.
+   */
   dataSource =
     new MatTableDataSource<EmployeeTableRow>([]);
 
+
+  /**
+   * Search text.
+   *
+   * This is temporary and is NOT stored
+   * inside EmployeeService.
+   */
   searchTerm = '';
 
-  private destroy$ = new Subject<void>();
 
-  allTableRows: EmployeeTableRow[] = [];
+  /**
+   * Complete transformed employee list.
+   *
+   * This contains department/role names.
+   */
+  private allTableRows: EmployeeTableRow[] = [];
+
+
+  /**
+   * Destroy notifier.
+   */
+  private readonly destroy$ =
+    new Subject<void>();
+
 
   constructor(
-    private employeeService: EmployeeService,
-    private sharedService: SharedService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute
-  ) { }
+    private readonly employeeService: EmployeeService,
+    private readonly sharedService: SharedService,
+    private readonly router: Router,
+    private readonly activatedRoute: ActivatedRoute
+  ) {}
+
 
   ngOnInit(): void {
 
+    // Detect current route view.
     this.listenToRoute();
 
+    // Fetch employees only when they are
+    // not already loaded.
     this.loadEmployees();
 
-    this.listenToEmployeeAndMasterData();
+    // Listen to employee + lookup changes.
+    this.listenToDataChanges();
   }
 
+
   ngAfterViewInit(): void {
-  this.dataSource.paginator = this.paginator;
-}
+
+    this.dataSource.paginator =
+      this.paginator;
+  }
+
 
   /**
- * Detect current child route view.
- */
+   * Detect whether the current route is:
+   *
+   * /employees
+   * /employees/new
+   * /employees/:id/edit
+   * /employees/:id/view
+   */
   private listenToRoute(): void {
 
     this.updateView();
@@ -110,6 +182,10 @@ paginator!: MatPaginator;
       });
   }
 
+
+  /**
+   * Read view from router data.
+   */
   private updateView(): void {
 
     const childRoute =
@@ -117,13 +193,16 @@ paginator!: MatPaginator;
 
     this.view =
       childRoute?.snapshot.data?.['view']
-      ?? this.activatedRoute.snapshot.data?.['view']
-      ?? 'list';
+      ??
+      this.activatedRoute.snapshot.data?.['view']
+      ??
+      'list';
   }
 
+
   /**
-   * Fetch employees only if service
-   * doesn't already contain employees.
+   * Fetch employees only if EmployeeService
+   * doesn't already have them.
    */
   private loadEmployees(): void {
 
@@ -139,185 +218,245 @@ paginator!: MatPaginator;
       .subscribe();
   }
 
+
   /**
-   * Whenever employees OR departments OR roles
-   * change, rebuild the table.
+   * Listen for:
+   *
+   * 1. Employee changes
+   * 2. Department changes
+   * 3. Role changes
+   *
+   * Whenever any of them changes,
+   * the table is rebuilt.
    */
- private listenToEmployeeAndMasterData(): void {
+  private listenToDataChanges(): void {
 
-  combineLatest([
-    this.employeeService.employees$,
-    this.sharedService.departments$,
-    this.sharedService.roles$
-  ])
-    .pipe(
-      map(([employees, departments, roles]) => {
+    combineLatest([
+      this.employeeService.employees$,
+      this.sharedService.departments$,
+      this.sharedService.roles$
+    ])
+      .pipe(
+        map(
+          ([
+            employees,
+            departments,
+            roles
+          ]) => {
 
-        return employees.map(employee => {
-
-          const department =
-            departments.find(
-              item => item.id === employee.department
+            return this.buildTableRows(
+              employees,
+              departments,
+              roles
             );
 
-          const role =
-            roles.find(
-              item => item.id === employee.role
-            );
+          }
+        ),
 
-          return {
-            ...employee,
+        takeUntil(this.destroy$)
+      )
+      .subscribe(rows => {
 
-            departmentName:
-              department?.name ??
-              employee.department ??
-              '-',
+        this.allTableRows = rows;
 
-            roleName:
-              role?.name ??
-              employee.role ??
-              '-'
-          };
-        });
-      }),
-      takeUntil(this.destroy$)
-    )
-    .subscribe(rows => {
+        this.applySearch();
 
-      this.allTableRows = rows;
+      });
+  }
 
-      this.applySearch();
-    });
-}
 
   /**
-  * Temporary client-side search.
-  *
-  * Does NOT modify EmployeeService.
-  */
+   * Convert employee GUIDs into
+   * display names.
+   */
+  private buildTableRows(
+    employees: Employee[],
+    departments: MasterData[],
+    roles: MasterData[]
+  ): EmployeeTableRow[] {
+
+    return employees.map(employee => {
+
+      const department =
+        departments.find(
+          item =>
+            item.id === employee.department
+        );
+
+      const role =
+        roles.find(
+          item =>
+            item.id === employee.role
+        );
+
+      return {
+
+        ...employee,
+
+        departmentName:
+          department?.name
+          ??
+          employee.department
+          ??
+          '-',
+
+        roleName:
+          role?.name
+          ??
+          employee.role
+          ??
+          '-'
+
+      };
+
+    });
+  }
+
+
+  /**
+   * Search employees.
+   *
+   * Search result is temporary.
+   *
+   * EmployeeService is NOT modified.
+   */
   onSearch(event: Event): void {
 
     const input =
       event.target as HTMLInputElement;
 
     this.searchTerm =
-      input.value.trim().toLowerCase();
+      input.value
+        .trim()
+        .toLowerCase();
 
     this.applySearch();
   }
 
-private applySearch(): void {
 
-  const search =
-    this.searchTerm.trim().toLowerCase();
+  /**
+   * Apply temporary search.
+   */
+  public applySearch(): void {
 
-  if (!search) {
-    this.dataSource.data = this.allTableRows;
-    return;
-  }
-
-  this.dataSource.data =
-    this.allTableRows.filter(employee => {
-
-      const searchableText = [
-        employee.firstName,
-        employee.lastName,
-        employee.email,
-        employee.phone,
-        employee.departmentName,
-        employee.roleName,
-        employee.status
-      ]
-        .filter(Boolean)
-        .join(' ')
+    const search =
+      this.searchTerm
+        .trim()
         .toLowerCase();
 
-      return searchableText.includes(search);
-    });
-}
+
+    if (!search) {
+
+      this.dataSource.data =
+        this.allTableRows;
+
+      return;
+    }
+
+
+    this.dataSource.data =
+      this.allTableRows.filter(
+        employee => {
+
+          const searchableText = [
+
+            employee.firstName,
+
+            employee.lastName,
+
+            employee.email,
+
+            employee.phone,
+
+            employee.departmentName,
+
+            employee.roleName,
+
+            employee.status
+
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+
+          return searchableText.includes(search);
+
+        }
+      );
+  }
 
 
   /**
-   * Rebuild rows using latest master data.
+   * Clear search.
    */
-  private rebuildTable(): void {
+  clearSearch(): void {
 
-    const employees =
-      this.employeeService.getCurrentEmployees();
+    this.searchTerm = '';
 
-    this.dataSource.data =
-      this.buildTableRows(employees);
+    this.applySearch();
   }
 
 
-  private buildTableRows(
-    employees: Employee[]
-  ): EmployeeTableRow[] {
-
-    const departments =
-      this.sharedService.getDepartments();
-
-    const roles =
-      this.sharedService.getRoles();
-
-    return employees.map(employee => {
-
-      const department =
-        departments.find(
-          item => item.id === employee.department
-        );
-
-      const role =
-        roles.find(
-          item => item.id === employee.role
-        );
-
-      return {
-        ...employee,
-
-        departmentName:
-          department?.name ??
-          employee.department ??
-          '-',
-
-        roleName:
-          role?.name ??
-          employee.role ??
-          '-'
-      };
-    });
-  }
-
-
+  /**
+   * Navigate to add employee.
+   */
   onAddEmployee(): void {
-    this.router.navigate(['new'], {
-      relativeTo: this.activatedRoute
-    });
-  }
-
-  onViewEmployee(employee: EmployeeTableRow): void {
 
     this.router.navigate(
-      [employee.organizationId, 'view'],
+      ['new'],
       {
-        relativeTo: this.activatedRoute
+        relativeTo:
+          this.activatedRoute
       }
     );
   }
 
-  onEditEmployee(employee: EmployeeTableRow): void {
+
+  /**
+   * Navigate to employee view.
+   */
+  onViewEmployee(
+    employee: EmployeeTableRow
+  ): void {
 
     this.router.navigate(
-      [employee.organizationId, 'edit'],
+      [
+        employee.organizationId,
+        'view'
+      ],
       {
-        relativeTo: this.activatedRoute
+        relativeTo:
+          this.activatedRoute
       }
     );
   }
+
+
+  /**
+   * Navigate to employee edit.
+   */
+  onEditEmployee(
+    employee: EmployeeTableRow
+  ): void {
+
+    this.router.navigate(
+      [
+        employee.organizationId,
+        'edit'
+      ],
+      {
+        relativeTo:
+          this.activatedRoute
+      }
+    );
+  }
+
 
   ngOnDestroy(): void {
 
     this.destroy$.next();
+
     this.destroy$.complete();
   }
 }
