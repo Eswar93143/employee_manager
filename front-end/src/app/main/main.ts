@@ -42,6 +42,11 @@ export class Main {
   isMobile = false;
 
   menus: MenuItem[] = [
+        {
+      label: 'Employees',
+      icon: 'group',
+      route: '/employees'
+    },
     {
       label: 'Dashboard',
       icon: 'dashboard',

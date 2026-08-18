@@ -1,0 +1,72 @@
+app-page-layout {
+    .whole-page {
+        display: flex;
+        flex-direction: column;
+
+        .page-header {
+            flex: 0 0 64px;
+            padding-left: 10px;
+            padding-right: 18px;
+            background-color: #eedd93;
+            display: flex;
+
+            h1 {
+                margin: 0;
+                font-size: 24px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .subHeader {
+                height: 100%;
+                flex: 1;
+                min-width: 0; // required so ellipsis/truncation works inside a flex child
+                align-items: center;
+            }
+
+            .first-head {
+                display: flex;
+                justify-content: start;
+                overflow: hidden;
+            }
+
+            .center-head {
+                display: flex;
+                justify-content: center;
+            }
+
+            .last-head {
+                display: flex;
+                justify-content: end;
+                // gap: 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                height: auto;
+                min-height: unset;
+                // padding: 10px 20px;
+                // gap: 8px;
+            }
+
+            .subHeader {
+                width: 100%;
+            }
+        }
+
+        .page-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .page-content {
+                height: auto;
+            }
+        }
+    }
+}

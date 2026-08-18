@@ -8,6 +8,11 @@ const employeeSchema = new mongoose.Schema(
             unique: true,
             index: true,
         },
+        organizationId: {
+            type: String,
+            required: true,
+            unique: true
+        },
         firstName: {
             type: String,
             required: true,

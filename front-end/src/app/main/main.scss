@@ -11,14 +11,16 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-
+    height: 60px;
     box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.08),
         0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .content {
-    padding: 24px;
+    height: calc(100% - 60px);
+    min-height: calc(100% - 60px);
+    max-height: calc(100% - 60px);
 }
 
 .spacer {

@@ -1,0 +1,285 @@
+@if (view === 'list') {
+
+  <app-page-layout>
+
+    <!-- Header icon -->
+    <mat-icon first-head>
+      group
+    </mat-icon>
+
+    <!-- Header title -->
+    <h1 first-head>
+      Employees
+    </h1>
+
+    <!-- Search -->
+    <mat-form-field
+      center-head
+      appearance="outline"
+      class="employee-search">
+
+      <mat-label>
+        Search employees
+      </mat-label>
+
+      <mat-icon matPrefix>
+        search
+      </mat-icon>
+
+      <input
+        matInput
+        type="text"
+        placeholder="Search..."
+        [value]="searchTerm"
+        (input)="onSearch($event)" />
+
+      @if (searchTerm) {
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          aria-label="Clear search"
+          (click)="searchTerm = ''; applySearch()">
+
+          <mat-icon>
+            close
+          </mat-icon>
+
+        </button>
+      }
+
+    </mat-form-field>
+
+    <!-- Header actions -->
+    <div
+      last-head
+      class="header-actions">
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="onAddEmployee()">
+
+        <mat-icon>
+          add
+        </mat-icon>
+
+        Add Employee
+
+      </button>
+
+    </div>
+
+
+    <!-- Employees table -->
+
+    <div class="table-container">
+
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        class="employee-table">
+
+
+        <!-- Name -->
+
+        <ng-container matColumnDef="name">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Name
+          </th>
+
+          <td mat-cell *matCellDef="let employee">
+
+            <div class="employee-name">
+
+              <span class="name">
+                {{ employee.firstName }}
+                {{ employee.lastName || '' }}
+              </span>
+
+            </div>
+
+          </td>
+
+        </ng-container>
+
+
+        <!-- Email -->
+
+        <ng-container matColumnDef="email">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Email
+          </th>
+
+          <td mat-cell *matCellDef="let employee">
+            {{ employee.email }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Phone -->
+
+        <ng-container matColumnDef="phone">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Phone
+          </th>
+
+          <td mat-cell *matCellDef="let employee">
+            {{ employee.phone || '-' }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Department -->
+
+        <ng-container matColumnDef="department">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Department
+          </th>
+
+          <td mat-cell *matCellDef="let employee">
+            {{ employee.departmentName }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Role -->
+
+        <ng-container matColumnDef="role">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Role
+          </th>
+
+          <td mat-cell *matCellDef="let employee">
+            {{ employee.roleName }}
+          </td>
+
+        </ng-container>
+
+
+        <!-- Status -->
+
+        <ng-container matColumnDef="status">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Status
+          </th>
+
+          <td mat-cell *matCellDef="let employee">
+
+            <span
+              class="status"
+              [class.active]="employee.status === 'active'"
+              [class.inactive]="employee.status !== 'active'">
+
+              {{ employee.status || '-' }}
+
+            </span>
+
+          </td>
+
+        </ng-container>
+
+
+        <!-- Actions -->
+
+        <ng-container matColumnDef="actions">
+
+          <th mat-header-cell *matHeaderCellDef>
+            Actions
+          </th>
+
+          <td
+            mat-cell
+            *matCellDef="let employee">
+
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="View"
+              (click)="onViewEmployee(employee)">
+
+              <mat-icon>
+                visibility
+              </mat-icon>
+
+            </button>
+
+            <button
+              mat-icon-button
+              type="button"
+              matTooltip="Edit"
+              (click)="onEditEmployee(employee)">
+
+              <mat-icon>
+                edit
+              </mat-icon>
+
+            </button>
+
+          </td>
+
+        </ng-container>
+
+
+        <!-- Header -->
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumns">
+        </tr>
+
+
+        <!-- Rows -->
+
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;">
+        </tr>
+
+
+        <!-- Empty -->
+
+        <tr
+          class="mat-row"
+          *matNoDataRow>
+
+          <td
+            class="mat-cell empty-cell"
+            [attr.colspan]="displayedColumns.length">
+
+            No employees found.
+
+          </td>
+
+        </tr>
+
+      </table>
+
+
+      <!-- Pagination -->
+
+      <mat-paginator
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        showFirstLastButtons>
+      </mat-paginator>
+
+    </div>
+
+  </app-page-layout>
+}
+
+
+<!-- Child route -->
+
+<router-outlet></router-outlet>

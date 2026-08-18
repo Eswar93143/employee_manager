@@ -1,0 +1,16 @@
+<div class="whole-page">
+  <div class="page-header">
+    <div class="subHeader first-head">
+      <ng-content select="[first-head]"></ng-content>
+    </div>
+    <div class="subHeader center-head">
+      <ng-content select="[center-head]"></ng-content>
+    </div>
+    <div class="subHeader last-head">
+      <ng-content select="[last-head]"></ng-content>
+    </div>
+  </div>
+  <div class="page-content">
+    <ng-content></ng-content>
+  </div>
+</div>
